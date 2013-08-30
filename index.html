@@ -38,8 +38,8 @@
         {{#each file in files}}
           <tr>
             <td><a {{bind-attr href=file.url}}>{{file.name}}</a></td>
-            <td>{{file.formattedLastModified}}</td>
-            <td>{{file.formattedSize}}</td>
+            <td>{{format-date-time file.lastModified}}</td>
+            <td>{{format-bytes file.size}}</td>
           </tr>
         {{/each}}
       </tbody>
