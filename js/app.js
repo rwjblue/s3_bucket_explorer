@@ -3,9 +3,9 @@ App = Ember.Application.create();
 App.ApplicationRoute = Ember.Route.extend({
   model: function(){
     return {bucketName: 'builds.emberjs.com',
-            types: [
-              {prefix: 'latest/', delimiter: '/'},
-              {prefix: 'stable/', delimiter: '/'}
+            current: [
+              {title: 'Latest Development Builds', prefix: 'latest/', delimiter: '/'},
+              {title: 'Latest Stable Builds', prefix: 'stable/', delimiter: '/'}
             ]};
   }
 });
@@ -16,7 +16,7 @@ App.S3BucketExplorerComponent = Ember.Component.extend({
   response: null,
 
   /**
-   * URL Building Properties
+   * URL Building
    */
   protocol: function(){
     if (this.get('useSSL'))
@@ -51,14 +51,24 @@ App.S3BucketExplorerComponent = Ember.Component.extend({
     return 'prefix=' + this.getWithDefault('prefix','').toString();
   }.property('prefix'),
 
-  url: function(){
-    return this.get('protocol') + 
-                        this.get('hostname')            + '?' +
-                        this.get('delimiterParameter')  + '&' +
-                        this.get('markerParameter')     + '&' +
-                        this.get('maxKeysParameter')    + '&' +
-                        this.get('prefixParameter');
-  }.property('protocol','hostname','delimiterParameter','markerParameter','maxKeysParameter','prefixParameter'),
+  baseUrl: function(){
+    return this.get('protocol') + this.get('hostname') 
+  }.property('protocol', 'hostname'),
+
+  queryParams: function(){
+    return this.get('delimiterParameter')  + '&' +
+           this.get('markerParameter')     + '&' +
+           this.get('maxKeysParameter')    + '&' +
+           this.get('prefixParameter');
+  }.property('delimiterParameter','markerParameter','maxKeysParameter','prefixParameter'),
+
+  queryUrl: function(){
+      return this.get('baseUrl') + '?' + this.get('queryParams');
+  }.property('baseUrl','queryParams'),
+
+  fileURL: function(relativePath){
+    return this.get('baseUrl') + '/' + relativePath;
+  },
 
   /**
    * Response Processing
@@ -66,7 +76,7 @@ App.S3BucketExplorerComponent = Ember.Component.extend({
   load: function(){
     var self = this;
 
-    Ember.$.get(this.get('url'), function(data){
+    Ember.$.get(this.get('queryUrl'), function(data){
       self.set('response', data);
 
       var contents = data.getElementsByTagName('Contents'),
@@ -74,13 +84,24 @@ App.S3BucketExplorerComponent = Ember.Component.extend({
       files    = [];
 
       for(var i = 0; i < length; i++){
-        files.push({
-          size: contents[i].getElementsByTagName('Size')[0].firstChild.data,
-          name: contents[i].getElementsByTagName('Key')[0].firstChild.data,
-          lastModified: contents[i].getElementsByTagName('LastModified')[0].firstChild.data,
-        });
+        var size = contents[i].getElementsByTagName('Size')[0].firstChild.data,
+            name = contents[i].getElementsByTagName('Key')[0].firstChild.data,
+            lastModified = new Date(contents[i].getElementsByTagName('LastModified')[0].firstChild.data);
+
+        files.push({ size: size, name: name, lastModified: lastModified, url: self.fileURL(name)});
       }
       self.set('files', files);
     });
-  }.observes('url').on('init')
+  }.observes('queryUrl').on('init')
 });
+
+Ember.Handlebars.helper('format-last-modified', function(d) {
+  function pad(n){return n<10 ? '0'+n : n}
+  return d.getUTCFullYear()+'-'
+  + pad(d.getUTCMonth()+1)+'-'
+  + pad(d.getUTCDate())+' '
+  + pad(d.getUTCHours())+':'
+  + pad(d.getUTCMinutes())+':'
+  + pad(d.getUTCSeconds())
+});
+

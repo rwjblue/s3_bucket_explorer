@@ -2,35 +2,47 @@
 <html>
 <head>
 <meta charset=utf-8 />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="http://code.jquery.com/jquery-2.0.2.js"></script>
   <script src="http://builds.emberjs.com/handlebars-1.0.0.js"></script>
   <script src="http://builds.emberjs.com/stable/ember.js"></script>
 
   <script src="js/app.js"></script>
+
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+  <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
   <script type="text/x-handlebars" data-template-name="application">
-
-    <div>Bucket: {{input type="text" value=bucketName}}</div>
-
-    {{#each type in types}}
-      <div>Prefix: {{input type="text" value=type.prefix}}</div>
-      <div>Delimiter: {{input type="text" value=type.delimiter}}</div>
+    <h2>Latest Builds</h2>
+    <br>
+    {{#each type in current}}
+    <div class="col-md-6">
+      <h4>{{type.title}}</h4> 
       {{s3-bucket-explorer useSSL=false bucket=bucketName prefix=type.prefix delimiter=type.delimiter}}
-      <hr/>
+    </div>
     {{/each}}
   </script>
 
   <script type="text/x-handlebars" data-template-name="components/s3-bucket-explorer">
 
-    <table>
-    {{#each file in files}}
-      <tr>
-        <td>{{file.name}}</td>
-        <td>{{file.lastModified}}</td>
-        <td>{{file.size}}</td>
-      </tr>
-    {{/each}}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Modified</th>
+          <th>Size</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each file in files}}
+          <tr {{action 'open' file}}>
+            <td>{{file.name}}</td>
+            <td>{{format-last-modified file.lastModified}}</td>
+            <td>{{file.size}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
     </table>
 
     {{#if paginated}}
