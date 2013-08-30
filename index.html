@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+  <script src="http://code.jquery.com/jquery-2.0.2.js"></script>
+  <script src="http://builds.emberjs.com/handlebars-1.0.0.js"></script>
+  <script src="http://builds.emberjs.com/stable/ember.js"></script>
+
+  <script src="js/app.js"></script>
+</head>
+<body>
+  <script type="text/x-handlebars" data-template-name="application">
+
+    <div>Bucket: {{input type="text" value=bucketName}}</div>
+    <div>Prefix: {{input type="text" value=prefix}}</div>
+
+    {{s3-bucket-explorer useSSL=false bucket=bucketName prefix=prefix}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="components/s3-bucket-explorer">
+
+    <table>
+    {{#each file in files}}
+      <tr>
+        <td>{{file.name}}</td>
+        <td>{{file.lastModified}}</td>
+        <td>{{file.size}}</td>
+      </tr>
+    {{/each}}
+    </table>
+
+    {{#if paginated}}
+      
+    {{/if}}
+
+  </script>
+</body>
+</html>
+  
