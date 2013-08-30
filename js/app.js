@@ -3,7 +3,10 @@ App = Ember.Application.create();
 App.ApplicationRoute = Ember.Route.extend({
   model: function(){
     return {bucketName: 'builds.emberjs.com',
-            prefix: 'latest/'};
+            types: [
+              {prefix: 'latest/', delimiter: '/'},
+              {prefix: 'stable/', delimiter: '/'}
+            ]};
   }
 });
 

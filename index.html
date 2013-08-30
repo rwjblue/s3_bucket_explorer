@@ -12,9 +12,13 @@
   <script type="text/x-handlebars" data-template-name="application">
 
     <div>Bucket: {{input type="text" value=bucketName}}</div>
-    <div>Prefix: {{input type="text" value=prefix}}</div>
 
-    {{s3-bucket-explorer useSSL=false bucket=bucketName prefix=prefix}}
+    {{#each type in types}}
+      <div>Prefix: {{input type="text" value=type.prefix}}</div>
+      <div>Delimiter: {{input type="text" value=type.delimiter}}</div>
+      {{s3-bucket-explorer useSSL=false bucket=bucketName prefix=type.prefix delimiter=type.delimiter}}
+      <hr/>
+    {{/each}}
   </script>
 
   <script type="text/x-handlebars" data-template-name="components/s3-bucket-explorer">
