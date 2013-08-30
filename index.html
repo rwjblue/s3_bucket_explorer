@@ -36,10 +36,10 @@
       </thead>
       <tbody>
         {{#each file in files}}
-          <tr {{action 'open' file}}>
-            <td>{{file.name}}</td>
-            <td>{{format-last-modified file.lastModified}}</td>
-            <td>{{file.size}}</td>
+          <tr>
+            <td><a {{bind-attr href=file.url}}>{{file.name}}</a></td>
+            <td>{{file.formattedLastModified}}</td>
+            <td>{{file.formattedSize}}</td>
           </tr>
         {{/each}}
       </tbody>

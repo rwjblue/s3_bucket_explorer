@@ -71,6 +71,23 @@ App.S3BucketExplorerComponent = Ember.Component.extend({
   },
 
   /**
+   * Display Helpers
+   */
+  formatLastModified: function(d) {
+    function pad(n){return n<10 ? '0'+n : n}
+    return d.getUTCFullYear()+'-'
+    + pad(d.getUTCMonth()+1)+'-'
+    + pad(d.getUTCDate())+' '
+    + pad(d.getUTCHours())+':'
+    + pad(d.getUTCMinutes())+':'
+    + pad(d.getUTCSeconds());
+  },
+
+  formatSize: function(bytes) {
+    return (bytes / 1024).toFixed(2) + ' KB';
+  },
+
+  /**
    * Response Processing
    */
   load: function(){
@@ -88,20 +105,14 @@ App.S3BucketExplorerComponent = Ember.Component.extend({
             name = contents[i].getElementsByTagName('Key')[0].firstChild.data,
             lastModified = new Date(contents[i].getElementsByTagName('LastModified')[0].firstChild.data);
 
-        files.push({ size: size, name: name, lastModified: lastModified, url: self.fileURL(name)});
+        files.push({name: name,
+                    size: size,
+                    lastModified: lastModified,
+                    formattedLastModified: self.formatLastModified(lastModified),
+                    formattedSize: self.formatSize(size),
+                    url: self.fileURL(name)});
       }
       self.set('files', files);
     });
   }.observes('queryUrl').on('init')
 });
-
-Ember.Handlebars.helper('format-last-modified', function(d) {
-  function pad(n){return n<10 ? '0'+n : n}
-  return d.getUTCFullYear()+'-'
-  + pad(d.getUTCMonth()+1)+'-'
-  + pad(d.getUTCDate())+' '
-  + pad(d.getUTCHours())+':'
-  + pad(d.getUTCMinutes())+':'
-  + pad(d.getUTCSeconds())
-});
-
